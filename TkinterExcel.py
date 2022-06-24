@@ -73,59 +73,60 @@ def Treat_excel_file():
 	# 	tk.messagebox.showerror("Information",f"Pas de fichier tel {file_path}")
 	# 	return None
 	#Nettoyage du fichier
-	#Arrondissemnt des pourcentages
-	def round_up(n, decimals=1):
-	    multiplier = 10 ** decimals
-	    return math.ceil(n * multiplier) / multiplier
-	def truncate(n, decimals=1):
-	    multiplier = 10**decimals
-	    return int(n* multiplier)/multiplier
-	idx=df.index[df["Université Amadou Mahtar MBOW"] == 'Nom'].tolist()[0]
-	title=df.iloc[idx,:]
-	df1=df.dropna(axis=0, how='any', thresh=None, subset=None, inplace=False)
-	df2=df1.rename(columns=title)
-	df2.columns=df2.columns.fillna("Decision")
-	df2.rename(columns = {'RESULTAT':'TotalCredits'}, inplace = True)
-	df2.reset_index(drop=True)
-	tri0_df2=df2.sort_values(by=['TotalCredits','Nom','Prénom'], ascending=[False,True,True])
-	tri1_df2=tri0_df2.reset_index(drop=True)
-	#**********************************************************************************
-	#Statistiques
-	Eff=tri1_df2.Decision.value_counts()
-	Eff=pd.DataFrame(Eff)
-	Eff.rename(columns = {"Decision":"Nombre_Etudiants"}, inplace = True)
-	Pourcentages= (Eff['Nombre_Etudiants'] /Eff['Nombre_Etudiants'].sum()) * 100
-	#**********************************************************************************
-	#Arrondissement des pourcentages
-	P=[]
-	for i in range(len(Pourcentages)):
-	    if i==1:
-	        x=round_up(Pourcentages[i])
-	        P.append(x)
-	    else:
-	        x=truncate(Pourcentages[i])
-	        P.append(x)
-	Eff['Pourcentages'] = P
-	Eff.loc["Total"]=[sum(Eff.Nombre_Etudiants),sum(Eff.Pourcentages)]
-	#**********************************************************************************
-	#Enregistrement du fichier
-	writer=pd.ExcelWriter("Resultats_Deliberation.xlsx",engine="xlsxwriter")
-	tri1_df2.to_excel(writer,"Résultats_Globaux")
-	Eff.to_excel(writer,"Statistiques")
-	writer.save()
+    Series=['Nom','nom','NOM','noms','NOMS','Noms']
+    idx=df.index[df[df.columns[1]].isin(Series)].tolist()[0]
+    title=df.iloc[idx,:]
+    df1=df.dropna(axis=0, how='any', thresh=None, subset=None, inplace=False)
+    df2=df1.rename(columns=title)
+    df2.columns=df2.columns.fillna("Decision")
+    df2.rename(columns = {title[15]:'TotalCredits'}, inplace = True)
+    df2.reset_index(drop=True)
+    tri0_df2=df2.sort_values(by=['TotalCredits',title[1],title[2]], ascending=[False,True,True])
+    tri1_df2=tri0_df2.reset_index(drop=True)
+    #**********************************************************************************
+    #Statistiques
+    Eff=tri1_df2.Decision.value_counts()
+    Eff=pd.DataFrame(Eff)
+    Eff.rename(columns = {"Decision":"Nombre_Etudiants"}, inplace = True)
+    Pourcentages= (Eff['Nombre_Etudiants'] /Eff['Nombre_Etudiants'].sum()) * 100
+    #**********************************************************************************
+    #Arrondissement des pourcentages
+    P=[]
+    for i in range(len(Pourcentages)):
+        if i==1:
+            x=round_up(Pourcentages[i])
+            P.append(x)
+        else:
+            x=truncate(Pourcentages[i])
+            P.append(x)
+    Eff['Pourcentages'] = P
+    Eff.loc["Total"]=[sum(Eff.Nombre_Etudiants),sum(Eff.Pourcentages)]
+    #**********************************************************************************
+    #Enregistrement du fichier
+    writer=pd.ExcelWriter("Resultats_Deliberation.xlsx",engine="xlsxwriter")
+    tri1_df2.to_excel(writer,"Résultats_Globaux")
+    Eff.to_excel(writer,"Statistiques")
+    writer.save()
 
-	colors=('gold','cyan','pink','grey')
-	wp={'linewidth':1,'edgecolor':'green'}
-	fig,ax=plt.subplots(figsize=(10,7))
-	wedges,texts,autotexts=ax.pie(Eff.Pourcentages[:4],labels=Eff[:4].index,explode=(0.05,0.05,0.05,0.05),autopct='%1.1f%%',startangle=90,shadow=True,wedgeprops=wp,textprops=dict(color='darkblue'),colors=colors)
-	ax.legend(wedges,Eff[:4].index,title='Résultats Globaux',loc='center left',bbox_to_anchor=(1,0,0.5,1))
-	plt.setp(autotexts,size=8,weight='bold')
-	ax.set_title('Diagramme circulaire des Résultats Globaux')
-	plt.axis('equal')
-	xl_pf=xl.Book("Resultats_Deliberation.xlsx")
-	sheet=xl_pf.sheets("Statistiques")
-	sheet.pictures.add(ax.get_figure(),name="Statistiques",update=True)
-	tk.messagebox.showinfo(title="Chargement", message="Fichier Traite")
+    colors=('gold','cyan','pink','grey')
+    wp={'linewidth':1,'edgecolor':'green'}
+    fig,ax=plt.subplots(figsize=(10,7))
+    wedges,texts,autotexts=ax.pie(Eff.Pourcentages[:4],labels=Eff[:4].index,explode=(0.05,0.05,0.05,0.05),autopct='%1.1f%%',startangle=90,shadow=True,wedgeprops=wp,textprops=dict(color='darkblue'),colors=colors)
+    ax.legend(wedges,Eff[:4].index,title='Résultats Globaux',loc='center left',bbox_to_anchor=(1,0,0.5,1))
+    plt.setp(autotexts,size=8,weight='bold')
+    ax.set_title('Diagramme circulaire des Résultats Globaux')
+    plt.axis('equal')
+    xl_pf=xl.Book("Resultats_Deliberation.xlsx")
+    sheet=xl_pf.sheets("Statistiques")
+    sheet.pictures.add(ax.get_figure(),name="Statistiques",update=True)
+    tk.messagebox.showinfo(title="Chargement", message="Fichier Traite")
+#Arrondissemnt des pourcentages
+def round_up(n, decimals=1):
+    multiplier = 10 ** decimals
+    return math.ceil(n * multiplier) / multiplier
+def truncate(n, decimals=1):
+    multiplier = 10**decimals
+    return int(n* multiplier)/multiplier
 #**********************************************************************************
 
 root.mainloop()
