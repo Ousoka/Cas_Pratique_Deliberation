@@ -1,9 +1,11 @@
+from tkinter import *
 import tkinter as tk
 from tkinter import filedialog,messagebox,ttk
 import pandas as pd
 from openpyxl.workbook import Workbook
 from openpyxl import load_workbook
 import math
+import os
 from matplotlib import pyplot as plt
 import xlwings as xl
 
@@ -13,6 +15,20 @@ root.title("Excel_File_Treatment")
 root.pack_propagate(False)
 root.resizable(0,0)
 root.configure(bg='grey')
+
+my_menu = Menu(root)
+root.config(menu=my_menu)
+
+def about():
+    top = Toplevel()
+    top.geometry("700x100")
+    top.title("À propos")
+    l = Label(top, text="Hello !\n Bienvenue dans l'interface de Traitement de fichier Excel. \nGUIDE: Vous devez d'abord sélectionner le fichier avec l\'aide de la commande *Chercher* ,\n ensuite effectuer le chargement du fichier avec le boutton *Charger*,\n"
+                        " enfin cliquer sur *Traiter*").pack()
+
+option_menu = Menu(my_menu, tearoff=0)
+my_menu.add_command(label="À propos",command=about)
+my_menu.add_command(label="Quitter", command=root.destroy)
 
 title=tk.Label(root,text ="Excel File Treater",font=("Arial",21),bg="darkgreen",fg="cyan")
 title.place(x=140,y=0,width=250,height=50)
@@ -30,7 +46,7 @@ button2.place(rely=0.65,relx=0.325,width=183)
 button3=tk.Button(file_frame,text="Traiter",fg='green',command=lambda:Treat_excel_file())
 button3.place(rely=0.65,relx=0.01,width=175)
 
-button4=tk.Button(root,text="Quitter",bg="darkred",fg="cyan",command =quit)
+button4=tk.Button(root,text="Quitter",bg="darkred",fg="cyan",command =root.destroy)
 button4.place(rely=0.90,relx=0.70,height=35,width=185)
 
 label_file=ttk.Label(file_frame,text="                                                     Pas de fichier choisi")
